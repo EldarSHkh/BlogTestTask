@@ -11,6 +11,6 @@ class DatabaseComponents:
         self.__engine_kwargs = engine_kwargs or {}
         self.engine = create_async_engine(url=connection_uri, **self.__engine_kwargs)
         self.sessionmaker = sessionmaker(
-            self.engine, class_=AsyncSession, expire_on_commit=False, autoflush=False
+            self.engine, class_=AsyncSession, expire_on_commit=False, autoflush=False, autocommit=False
         )
 
