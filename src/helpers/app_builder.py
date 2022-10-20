@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi.security import HTTPBearer
 from argon2 import PasswordHasher
 
@@ -6,9 +6,16 @@ from src.api import configure_routers
 from src.config import Settings
 from src.database.models.base import DatabaseComponents
 from src.database.repositories.user_repository import UserRepository
-from src.api.dependencies.service import UserServiceStub, JWTSecurityServiceStub, JWTSecurityGuardServiceStub
-from src.services.user.user_service import UserService
-from src.services.security.jwt_service import JWTAuthenticationService, JWTSecurityGuardService
+from src.database.repositories.post_repository import PostRepository
+from src.api.dependencies.service import (
+    UserServiceStub,
+    JWTSecurityServiceStub,
+    JWTSecurityGuardServiceStub,
+    PostServiceStub
+)
+from src.services.user_service import UserService
+from src.services.post_service import PostService
+from src.services.jwt_service import JWTAuthenticationService, JWTSecurityGuardService
 
 
 def build_app() -> FastAPI:
@@ -37,6 +44,9 @@ def build_app() -> FastAPI:
                 secret_key=settings.jwt_secret_key,
                 algorithm="HS256",
 
+            ),
+            PostServiceStub: lambda: PostService(
+                post_repository=PostRepository(db_components.sessionmaker),
             ),
         }
     )

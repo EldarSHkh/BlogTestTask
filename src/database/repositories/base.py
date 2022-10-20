@@ -69,18 +69,18 @@ class BaseRepository(ABC):
             )
         return typing.cast(Model, result)
 
-    async def _update(self, *clauses: typing.Any, **values: typing.Any) -> None:
+    async def _update(self, *clauses: typing.Any, **values: typing.Any) -> list[Model]:
         async with self.transaction():
-            stmt = update(self.model).where(*clauses).values(**values).returning(None)
-            await self._session.execute(stmt)
-        return None
+            stmt = update(self.model).where(*clauses).values(**values).returning("*")
+            result = (await self._session.execute(stmt)).mappings().all()
+        return list(map(self._convert_to_model, result))
 
-    async def _exists(self, *clauses: typing.Any) -> typing.Optional[bool]:
+    async def _exists(self, *clauses: typing.Any) -> bool | None:
         stmt = exists(select(self.model).where(*clauses)).select()
         result = (await self._session.execute(stmt)).scalar()
         return typing.cast(typing.Optional[bool], result)
 
-    async def _delete(self, *clauses: typing.Any) -> typing.List[Model]:
+    async def _delete(self, *clauses: typing.Any) -> list[Model]:
         async with self.transaction():
             stmt = delete(self.model).where(*clauses).returning("*")
             result = (await self._session.execute(stmt)).mappings().all()

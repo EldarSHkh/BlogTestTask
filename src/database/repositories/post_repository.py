@@ -15,19 +15,18 @@ class PostRepository(BaseRepository):
     def __init__(self, session_or_pool: typing.Union[sessionmaker, AsyncSession]):
         super().__init__(session_or_pool)
 
-    async def add_post(self, *, title: str, text: str) -> Model:
-        async with self.transaction():
-            return await self._insert(title=title, text=text)
+    async def add_post(self, *, author_id: int, title: str, text: str) -> Model:
+        return await self._insert(author_id=author_id, title=title, text=text)
 
-    async def delete_post(self, post_id: int) -> None:
+    async def delete_post(self, *, author_id: int,  post_id: int) -> list[Model]:
         try:
-            await self._delete(self.model.id == post_id)
+            return await self._delete((self.model.id == post_id) & (self.model.author_id == author_id))
         except IntegrityError as exc:
             raise DbError(exc=exc)
 
-    async def update_post(self, post_id: int):
+    async def update_post(self,  author_id: int,  post_id: int, update_data: dict) -> list[Model]:
         try:
-            await self._update(self.model.id == post_id)
+            return await self._update((self.model.id == post_id) & (self.model.author_id == author_id), **update_data)
         except IntegrityError as exc:
             raise DbError(exc=exc)
 

@@ -1,7 +1,7 @@
 from abc import ABC
 
-from src.api.dto import RegisterForm
-from src.services.security.jwt_service import JWTToken
+from src.api.dto import RegisterForm, PostDTO
+from src.services.jwt_service import JWTToken
 
 
 class UserServiceStub(ABC):
@@ -28,3 +28,17 @@ class JWTSecurityServiceStub(ABC):
 class JWTSecurityGuardServiceStub(ABC):
     pass
 
+
+class PostServiceStub(ABC):
+
+    async def create_post(self, *, author_id: int, title: str, text: str) -> PostDTO:
+        ...
+
+    async def get_post_by_id(self, *, post_id: int) -> PostDTO:
+        ...
+
+    async def delete_post(self, *, author_id, post_id: int) -> None:
+        ...
+
+    async def update_post(self, *, author_id: int, post_id: int, update_data: dict) -> PostDTO:
+        ...
