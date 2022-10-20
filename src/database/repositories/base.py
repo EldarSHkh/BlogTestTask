@@ -36,32 +36,32 @@ class BaseRepository(ABC):
             yield
 
     async def _insert(self, **values: typing.Any) -> Model:
-        insert_stmt = (
-            insert(self.model)
-                .values(**values)
-                .returning(self.model)
-        )
-        result = (await self._session.execute(insert_stmt)).mappings().first()
+        async with self.transaction():
+            insert_stmt = (
+                insert(self.model)
+                    .values(**values)
+                    .returning(self.model)
+            )
+            result = (await self._session.execute(insert_stmt)).mappings().first()
         return self._convert_to_model(typing.cast(typing.Dict[str, typing.Any], result))
 
     async def _select_all(self, *clauses: typing.Any) -> typing.List[Model]:
         query_model = self.model
         stmt = lambda_stmt(lambda: select(query_model))
         stmt += lambda s: s.where(*clauses)
-        async with self.transaction:
+        async with self.transaction():
             result = (
                 (await self._session.execute(typing.cast(Executable, stmt)))
                     .scalars()
                     .all()
             )
-
         return result
 
     async def _select_one(self, *clauses: typing.Any) -> Model:
         query_model = self.model
         stmt = lambda_stmt(lambda: select(query_model))
         stmt += lambda s: s.where(*clauses)
-        async with self.transaction:
+        async with self.transaction():
             result = (
                 (await self._session.execute(typing.cast(Executable, stmt)))
                     .scalars()
@@ -70,8 +70,9 @@ class BaseRepository(ABC):
         return typing.cast(Model, result)
 
     async def _update(self, *clauses: typing.Any, **values: typing.Any) -> None:
-        stmt = update(self.model).where(*clauses).values(**values).returning(None)
-        await self._session.execute(stmt)
+        async with self.transaction():
+            stmt = update(self.model).where(*clauses).values(**values).returning(None)
+            await self._session.execute(stmt)
         return None
 
     async def _exists(self, *clauses: typing.Any) -> typing.Optional[bool]:
@@ -80,8 +81,9 @@ class BaseRepository(ABC):
         return typing.cast(typing.Optional[bool], result)
 
     async def _delete(self, *clauses: typing.Any) -> typing.List[Model]:
-        stmt = delete(self.model).where(*clauses).returning("*")
-        result = (await self._session.execute(stmt)).mappings().all()
+        async with self.transaction():
+            stmt = delete(self.model).where(*clauses).returning("*")
+            result = (await self._session.execute(stmt)).mappings().all()
         return list(map(self._convert_to_model, result))
 
     def _convert_to_model(self, kwargs) -> Model:

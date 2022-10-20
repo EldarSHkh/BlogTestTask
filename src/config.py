@@ -20,3 +20,8 @@ class DbSettings(BaseSettings):
     class Config:
         env_file = '.env.dev'
         env_file_encoding = 'utf-8'
+
+
+class Settings(DbSettings):
+    jwt_secret_key: str = "secret"
+    token_expires_in_minutes: float = 30
