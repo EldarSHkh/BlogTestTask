@@ -13,13 +13,19 @@ from src.helpers.password_hasher import PasswordHasherProto
 class UserRepository(BaseRepository):
     model = User
 
-    def __init__(self, session_or_pool: typing.Union[sessionmaker, AsyncSession],
-                 password_hasher: PasswordHasherProto):
+    def __init__(
+        self,
+        session_or_pool: typing.Union[sessionmaker, AsyncSession],
+        password_hasher: PasswordHasherProto,
+    ):
         super().__init__(session_or_pool)
         self.password_hasher = password_hasher
 
     async def add_user(self, *, login: str, password: str) -> Model:
-        prepared_payload = {"login": login, "password": self.password_hasher.hash(password)}
+        prepared_payload = {
+            "login": login,
+            "password": self.password_hasher.hash(password),
+        }
         try:
             return await self._insert(**prepared_payload)
         except IntegrityError as exc:

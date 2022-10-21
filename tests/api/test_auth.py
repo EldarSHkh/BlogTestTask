@@ -12,12 +12,14 @@ data_register = [
 
 
 @pytest.mark.parametrize("data_register", data_register)
-async def test_registration(app: FastAPI,  data_register) -> None:
+async def test_registration(app: FastAPI, data_register) -> None:
     async with AsyncClient(
-            app=app,
-            base_url="http://test",
+        app=app,
+        base_url="http://test",
     ) as client:
-        response = await client.post("http://test/api/auth/register", json=data_register)
+        response = await client.post(
+            "http://test/api/auth/register", json=data_register
+        )
     assert response.status_code == data_register["status_code"]
 
 
@@ -30,8 +32,8 @@ data_login = [
 @pytest.mark.parametrize("data_login", data_login)
 async def test_login(app: FastAPI, data_login) -> None:
     async with AsyncClient(
-            app=app,
-            base_url="http://test",
+        app=app,
+        base_url="http://test",
     ) as client:
         response = await client.post("http://test/api/auth/login", json=data_login)
     assert response.status_code == data_login["status_code"]

@@ -18,7 +18,9 @@ class BaseRepository(ABC):
 
     model: typing.ClassVar[typing.Type[Model]]
 
-    def __init__(self, session_or_pool: typing.Union[sessionmaker, AsyncSession]) -> None:
+    def __init__(
+        self, session_or_pool: typing.Union[sessionmaker, AsyncSession]
+    ) -> None:
         """
         :param session_or_pool: async session from async context manager
         """
@@ -37,11 +39,7 @@ class BaseRepository(ABC):
 
     async def _insert(self, **values: typing.Any) -> Model:
         async with self.transaction():
-            insert_stmt = (
-                insert(self.model)
-                    .values(**values)
-                    .returning(self.model)
-            )
+            insert_stmt = insert(self.model).values(**values).returning(self.model)
             result = (await self._session.execute(insert_stmt)).mappings().first()
         return self._convert_to_model(typing.cast(typing.Dict[str, typing.Any], result))
 
@@ -52,8 +50,8 @@ class BaseRepository(ABC):
         async with self.transaction():
             result = (
                 (await self._session.execute(typing.cast(Executable, stmt)))
-                    .scalars()
-                    .all()
+                .scalars()
+                .all()
             )
         return result
 
@@ -64,8 +62,8 @@ class BaseRepository(ABC):
         async with self.transaction():
             result = (
                 (await self._session.execute(typing.cast(Executable, stmt)))
-                    .scalars()
-                    .first()
+                .scalars()
+                .first()
             )
         return typing.cast(Model, result)
 

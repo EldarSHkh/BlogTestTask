@@ -15,7 +15,7 @@ from src.database.repositories.post_repository import PostRepository
 from src.config import Settings
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def event_loop():
     return asyncio.new_event_loop()
 
@@ -23,27 +23,32 @@ def event_loop():
 @pytest.fixture(scope="module")
 def path_to_alembic_ini() -> str:
     from src.config import BASE_DIR
+
     return str(BASE_DIR / "alembic.ini")
 
 
 @pytest.fixture(scope="module")
 def path_to_migrations_folder() -> str:
     from src.config import BASE_DIR
+
     return str(BASE_DIR / "src" / "database" / "migrations")
 
 
 @pytest.fixture(scope="module")
-def apply_migrations(path_to_alembic_ini: str, path_to_migrations_folder: str) -> AsyncGenerator[None, Any]:
+def apply_migrations(
+    path_to_alembic_ini: str, path_to_migrations_folder: str
+) -> AsyncGenerator[None, Any]:
     alembic_cfg = alembic_config.Config(path_to_alembic_ini)
-    alembic_cfg.set_main_option('script_location', path_to_migrations_folder)
-    command.upgrade(alembic_cfg, 'head')
+    alembic_cfg.set_main_option("script_location", path_to_migrations_folder)
+    command.upgrade(alembic_cfg, "head")
     yield
-    command.downgrade(alembic_cfg, 'base')
+    command.downgrade(alembic_cfg, "base")
 
 
 @pytest.fixture(scope="module")
 def app(apply_migrations: None) -> FastAPI:
     from src.helpers.app_builder import build_app
+
     return build_app()
 
 
@@ -74,7 +79,7 @@ def token(test_user: None) -> str:
         "exp": datetime.utcnow() + timedelta(minutes=settings.token_expires_in_minutes),
         "sub": "string",
         "login": "string",
-        "user_id": 1
+        "user_id": 1,
     }
     filtered_payload = {k: v for k, v in token_payload.items() if v is not None}
     return jwt.encode(filtered_payload, settings.jwt_secret_key, algorithm="HS256")

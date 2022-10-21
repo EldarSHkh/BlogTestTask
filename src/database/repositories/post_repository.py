@@ -22,27 +22,35 @@ class PostRepository(BaseRepository):
     async def add_post(self, *, author_id: int, title: str, text: str) -> Model:
         return await self._insert(author_id=author_id, title=title, text=text)
 
-    async def delete_post(self, *, author_id: int,  post_id: int) -> list[Model]:
+    async def delete_post(self, *, author_id: int, post_id: int) -> list[Model]:
         try:
-            return await self._delete((self.model.id == post_id) & (self.model.author_id == author_id))
+            return await self._delete(
+                (self.model.id == post_id) & (self.model.author_id == author_id)
+            )
         except IntegrityError as exc:
             raise DbError(exc=exc)
 
-    async def update_post(self,  author_id: int,  post_id: int, update_data: dict) -> list[Model]:
+    async def update_post(
+        self, author_id: int, post_id: int, update_data: dict
+    ) -> list[Model]:
         try:
-            return await self._update((self.model.id == post_id) & (self.model.author_id == author_id), **update_data)
+            return await self._update(
+                (self.model.id == post_id) & (self.model.author_id == author_id),
+                **update_data
+            )
         except IntegrityError as exc:
             raise DbError(exc=exc)
 
     async def get_post_by_id(self, post_id: int) -> Model:
-        stmt = select(self.model).where(self.model.id == post_id).options(selectinload(self.model.comments))
+        stmt = (
+            select(self.model)
+            .where(self.model.id == post_id)
+            .options(selectinload(self.model.comments))
+        )
         async with self.transaction():
             result = (
                 (await self._session.execute(typing.cast(Executable, stmt)))
-                    .scalars()
-                    .first()
+                .scalars()
+                .first()
             )
         return typing.cast(Model, result)
-
-
-

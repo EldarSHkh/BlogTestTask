@@ -23,14 +23,13 @@ class UserIsUnauthorized(Exception):
 
 
 class JWTSecurityGuardService:
-
     def __init__(
-            self,
-            auth_scheme: HTTPBearer,
-            user_repository: UserRepository,
-            password_hasher: PasswordHasherProto,
-            secret_key: str,
-            algorithm: str,
+        self,
+        auth_scheme: HTTPBearer,
+        user_repository: UserRepository,
+        password_hasher: PasswordHasherProto,
+        secret_key: str,
+        algorithm: str,
     ):
         self._auth_scheme = auth_scheme
         self._secret_key = secret_key
@@ -54,7 +53,9 @@ class JWTSecurityGuardService:
     def _decode_token(self, token: str) -> TokenPayload:
         try:
             payload = jwt.decode(token, self._secret_key, algorithms=[self._algorithm])
-            return TokenPayload(login=payload["login"], user_id=payload["user_id"], exp=payload["exp"])
+            return TokenPayload(
+                login=payload["login"], user_id=payload["user_id"], exp=payload["exp"]
+            )
         except (jwt.DecodeError, ValidationError) as e:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -70,14 +71,13 @@ class JWTSecurityGuardService:
 
 
 class JWTAuthenticationService:
-
     def __init__(
-            self,
-            user_repository: UserRepository,
-            password_hasher: PasswordHasherProto,
-            secret_key: str,
-            algorithm: str,
-            token_expires_in_minutes: float
+        self,
+        user_repository: UserRepository,
+        password_hasher: PasswordHasherProto,
+        secret_key: str,
+        algorithm: str,
+        token_expires_in_minutes: float,
     ):
         self._token_expires_in_minutes = token_expires_in_minutes
         self._secret_key = secret_key
@@ -95,7 +95,7 @@ class JWTAuthenticationService:
         if self._password_hasher.check_needs_rehash(user.password):
             await self._user_repository.update_password_hash(
                 new_pwd_hash=self._password_hasher.hash(form_data.password),
-                user_id=user.id
+                user_id=user.id,
             )
         try:
             self._password_hasher.verify(user.password, form_data.password)
@@ -104,16 +104,17 @@ class JWTAuthenticationService:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=http_execptions_string.INCORRECT_LOGIN_INPUT,
             )
-        return JWTToken(self._generate_jwt_token(
-            {"sub": form_data.login, "login": form_data.login, "user_id": user.id})
+        return JWTToken(
+            self._generate_jwt_token(
+                {"sub": form_data.login, "login": form_data.login, "user_id": user.id}
+            )
         )
 
     def _generate_jwt_token(self, token_payload: Dict[str, Any]) -> str:
         token_payload = {
-            "exp": datetime.utcnow() + timedelta(minutes=self._token_expires_in_minutes),
-            **token_payload
+            "exp": datetime.utcnow()
+            + timedelta(minutes=self._token_expires_in_minutes),
+            **token_payload,
         }
         filtered_payload = {k: v for k, v in token_payload.items() if v is not None}
         return jwt.encode(filtered_payload, self._secret_key, algorithm=self._algorithm)
-
-

@@ -11,6 +11,8 @@ class Post(Base, DatetimeMixin):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     title = Column(String(300), index=True)
     text = Column(String(10000))
-    author_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
+    author_id = Column(
+        Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False
+    )
     author = relationship("User", back_populates="posts")
     comments = relationship("Comment")

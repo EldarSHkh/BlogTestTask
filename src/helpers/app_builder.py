@@ -13,7 +13,7 @@ from src.api.dependencies.service import (
     JWTSecurityServiceStub,
     JWTSecurityGuardServiceStub,
     PostServiceStub,
-    CommentServiceStub
+    CommentServiceStub,
 )
 from src.services.user_service import UserService
 from src.services.post_service import PostService
@@ -32,22 +32,27 @@ def build_app() -> FastAPI:
     app.dependency_overrides.update(
         {
             UserServiceStub: lambda: UserService(
-                user_repository=UserRepository(db_components.sessionmaker, password_hasher),
+                user_repository=UserRepository(
+                    db_components.sessionmaker, password_hasher
+                ),
             ),
             JWTSecurityServiceStub: lambda: JWTAuthenticationService(
-                user_repository=UserRepository(db_components.sessionmaker, password_hasher),
+                user_repository=UserRepository(
+                    db_components.sessionmaker, password_hasher
+                ),
                 password_hasher=password_hasher,
                 secret_key=settings.jwt_secret_key,
                 algorithm="HS256",
-                token_expires_in_minutes=settings.token_expires_in_minutes
+                token_expires_in_minutes=settings.token_expires_in_minutes,
             ),
             JWTSecurityGuardServiceStub: JWTSecurityGuardService(
                 auth_scheme=HTTPBearer(),
-                user_repository=UserRepository(db_components.sessionmaker, password_hasher),
+                user_repository=UserRepository(
+                    db_components.sessionmaker, password_hasher
+                ),
                 password_hasher=password_hasher,
                 secret_key=settings.jwt_secret_key,
                 algorithm="HS256",
-
             ),
             PostServiceStub: lambda: PostService(
                 post_repository=PostRepository(db_components.sessionmaker),

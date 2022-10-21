@@ -4,7 +4,6 @@ from src.database.repositories.base import Model
 
 
 class UserRepositoryStub(ABC):
-
     async def add_user(self, *, login: str, password: str) -> Model:
         ...
 

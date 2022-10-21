@@ -27,7 +27,9 @@ class UserService:
             return UserDTO.from_orm(user)
         return None
 
-    async def update_password(self, *, user_id: int, current_password: str, new_password: str) -> None:
+    async def update_password(
+        self, *, user_id: int, current_password: str, new_password: str
+    ) -> None:
         if not (user := await self.user_repository.get_user_by_id(user_id=user_id)):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -37,7 +39,7 @@ class UserService:
             self.user_repository.password_hasher.verify(user.password, current_password)
             await self.user_repository.update_password_hash(
                 new_pwd_hash=self.user_repository.password_hasher.hash(new_password),
-                user_id=user.id
+                user_id=user.id,
             )
         except VerificationError:
             raise HTTPException(

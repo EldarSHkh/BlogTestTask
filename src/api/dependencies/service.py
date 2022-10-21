@@ -5,7 +5,6 @@ from src.services.jwt_service import JWTToken
 
 
 class UserServiceStub(ABC):
-
     async def user_registration(self, *, login: str, password: str):
         ...
 
@@ -15,12 +14,13 @@ class UserServiceStub(ABC):
     async def get_user_info(self, user_id: int):
         ...
 
-    async def update_password(self, *, user_id: int, current_password: str, new_password: str) -> None:
+    async def update_password(
+        self, *, user_id: int, current_password: str, new_password: str
+    ) -> None:
         ...
 
 
 class JWTSecurityServiceStub(ABC):
-
     async def authenticate_user(self, form_data: RegisterForm) -> JWTToken:
         ...
 
@@ -30,7 +30,6 @@ class JWTSecurityGuardServiceStub(ABC):
 
 
 class PostServiceStub(ABC):
-
     async def create_post(self, *, author_id: int, title: str, text: str) -> PostDTO:
         ...
 
@@ -40,13 +39,16 @@ class PostServiceStub(ABC):
     async def delete_post(self, *, author_id, post_id: int) -> None:
         ...
 
-    async def update_post(self, *, author_id: int, post_id: int, update_data: dict) -> PostDTO:
+    async def update_post(
+        self, *, author_id: int, post_id: int, update_data: dict
+    ) -> PostDTO:
         ...
 
 
 class CommentServiceStub(ABC):
-
-    async def create_comment(self, *, author_id: int, post_id: int, text: str, parent_id: int = None) -> CommentDTO:
+    async def create_comment(
+        self, *, author_id: int, post_id: int, text: str, parent_id: int = None
+    ) -> CommentDTO:
         ...
 
     async def get_comment(self, *, comment_id: int) -> CommentDTO:
@@ -55,5 +57,7 @@ class CommentServiceStub(ABC):
     async def delete_comment(self, *, author_id: int, comment_id: int) -> None:
         ...
 
-    async def update_comment(self, *, author_id: int, comment_id: int, update_data: dict) -> CommentDTO:
+    async def update_comment(
+        self, *, author_id: int, comment_id: int, update_data: dict
+    ) -> CommentDTO:
         ...

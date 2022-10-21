@@ -18,8 +18,8 @@ class DbSettings(BaseSettings):
         return v
 
     class Config:
-        env_file = '.env.dev'
-        env_file_encoding = 'utf-8'
+        env_file = ".env.dev"
+        env_file_encoding = "utf-8"
 
 
 class Settings(DbSettings):

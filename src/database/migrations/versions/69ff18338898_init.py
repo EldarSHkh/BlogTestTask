@@ -47,9 +47,7 @@ def upgrade() -> None:
         sa.Column("title", sa.String(length=300), nullable=False),
         sa.Column("text", sa.String(length=10000), nullable=False),
         sa.Column("author_id", sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["author_id"], ["user.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["author_id"], ["user.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_post_id"), "post", ["id"], unique=False)
@@ -68,14 +66,8 @@ def upgrade() -> None:
         sa.Column("post_id", sa.Integer(), nullable=False),
         sa.Column("author_id", sa.Integer(), nullable=False),
         sa.Column("parent_id", sa.Integer(), nullable=True),
-        sa.ForeignKeyConstraint(
-            ["author_id"], ["user.id"], ondelete="CASCADE"
-        ),
-        sa.ForeignKeyConstraint(
-            ["parent_id"],
-            ["comment.id"],
-            ondelete="SET NULL"
-        ),
+        sa.ForeignKeyConstraint(["author_id"], ["user.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["parent_id"], ["comment.id"], ondelete="SET NULL"),
         sa.ForeignKeyConstraint(["post_id"], ["post.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )

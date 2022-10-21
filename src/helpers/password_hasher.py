@@ -2,7 +2,6 @@ from typing import Protocol
 
 
 class PasswordHasherProto(Protocol):
-
     def hash(self, password: str) -> str:
         ...
 
