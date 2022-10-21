@@ -39,6 +39,9 @@ async def create_comment(
     parent_id: None | int = Body(0),
     comment_service: CommentServiceStub = Depends(),
 ):
+    """
+    parent_id: id of the comment the user is replying to
+    """
     try:
         return await comment_service.create_comment(
             author_id=request.state.user.user_id,
@@ -70,7 +73,7 @@ async def delete_comment(
         )
 
 
-@api_router.patch("/{comment_id}")
+@api_router.patch("/{comment_id}", response_model=CommentDTO)
 async def update_comment(
     request: Request,
     comment_id: int,
