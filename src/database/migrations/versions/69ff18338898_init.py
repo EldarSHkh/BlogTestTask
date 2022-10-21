@@ -44,9 +44,9 @@ def upgrade() -> None:
         ),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column("title", sa.String(length=300), nullable=True),
-        sa.Column("text", sa.String(length=10000), nullable=True),
-        sa.Column("author_id", sa.Integer(), nullable=True),
+        sa.Column("title", sa.String(length=300), nullable=False),
+        sa.Column("text", sa.String(length=10000), nullable=False),
+        sa.Column("author_id", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["author_id"], ["user.id"], ondelete="CASCADE"
         ),
@@ -64,9 +64,9 @@ def upgrade() -> None:
         ),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column("text", sa.String(length=500), nullable=True),
-        sa.Column("post_id", sa.Integer(), nullable=True),
-        sa.Column("author_id", sa.Integer(), nullable=True),
+        sa.Column("text", sa.String(length=500), nullable=False),
+        sa.Column("post_id", sa.Integer(), nullable=False),
+        sa.Column("author_id", sa.Integer(), nullable=False),
         sa.Column("parent_id", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(
             ["author_id"], ["user.id"], ondelete="CASCADE"
@@ -74,6 +74,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(
             ["parent_id"],
             ["comment.id"],
+            ondelete="SET NULL"
         ),
         sa.ForeignKeyConstraint(["post_id"], ["post.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),

@@ -2,10 +2,14 @@ import typing
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, selectinload, joinedload, subqueryload
+from sqlalchemy import select
+from sqlalchemy.sql import Executable
+from sqlalchemy.orm import aliased
 
 from src.database.exceptions import DbError
 from src.database.models.post import Post
+from src.database.models.comment import Comment
 from src.database.repositories.base import BaseRepository, Model
 
 
@@ -31,7 +35,14 @@ class PostRepository(BaseRepository):
             raise DbError(exc=exc)
 
     async def get_post_by_id(self, post_id: int) -> Model:
-        return await self._select_one(self.model.id == post_id)
+        stmt = select(self.model).where(self.model.id == post_id).options(selectinload(self.model.comments))
+        async with self.transaction():
+            result = (
+                (await self._session.execute(typing.cast(Executable, stmt)))
+                    .scalars()
+                    .first()
+            )
+        return typing.cast(Model, result)
 
 
 

@@ -11,7 +11,10 @@ api_router = APIRouter(dependencies=[Depends(JWTSecurityGuardServiceStub), Depen
 
 @api_router.get("/{post_id}", response_model=PostDTO)
 async def get_post(post_id: int, post_service: PostServiceStub = Depends()):
-    return await post_service.get_post_by_id(post_id=post_id)
+    try:
+        return await post_service.get_post_by_id(post_id=post_id)
+    except PostNotFound:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="post not found")
 
 
 @api_router.post("", response_model=PostDTO)
@@ -31,7 +34,8 @@ async def delete_post(
         post_service: PostServiceStub = Depends(),
 ):
     try:
-        return await post_service.delete_post(author_id=request.state.user.user_id, post_id=post_id)
+        await post_service.delete_post(author_id=request.state.user.user_id, post_id=post_id)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
     except PostNotFound:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="post not found")
 

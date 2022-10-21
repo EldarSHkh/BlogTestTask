@@ -7,14 +7,18 @@ from src.config import Settings
 from src.database.models.base import DatabaseComponents
 from src.database.repositories.user_repository import UserRepository
 from src.database.repositories.post_repository import PostRepository
+from src.database.repositories.comment_repository import CommentRepository
 from src.api.dependencies.service import (
     UserServiceStub,
     JWTSecurityServiceStub,
     JWTSecurityGuardServiceStub,
-    PostServiceStub
+    PostServiceStub,
+    CommentServiceStub
 )
 from src.services.user_service import UserService
 from src.services.post_service import PostService
+from src.services.comment_service import CommentService
+
 from src.services.jwt_service import JWTAuthenticationService, JWTSecurityGuardService
 
 
@@ -47,6 +51,9 @@ def build_app() -> FastAPI:
             ),
             PostServiceStub: lambda: PostService(
                 post_repository=PostRepository(db_components.sessionmaker),
+            ),
+            CommentServiceStub: lambda: CommentService(
+                comment_repository=CommentRepository(db_components.sessionmaker),
             ),
         }
     )

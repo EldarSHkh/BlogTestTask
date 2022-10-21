@@ -12,4 +12,4 @@ class User(Base, DatetimeMixin):
     login = Column(String(50), unique=True, index=True)
     password = Column(String(100))
     posts = relationship("Post", back_populates="author")
-    comments = relationship("Comment", back_populates="author")
+    comments = relationship("Comment")

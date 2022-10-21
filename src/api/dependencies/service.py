@@ -1,6 +1,6 @@
 from abc import ABC
 
-from src.api.dto import RegisterForm, PostDTO
+from src.api.dto import RegisterForm, PostDTO, CommentDTO
 from src.services.jwt_service import JWTToken
 
 
@@ -41,4 +41,19 @@ class PostServiceStub(ABC):
         ...
 
     async def update_post(self, *, author_id: int, post_id: int, update_data: dict) -> PostDTO:
+        ...
+
+
+class CommentServiceStub(ABC):
+
+    async def create_comment(self, *, author_id: int, post_id: int, text: str, parent_id: int = None) -> CommentDTO:
+        ...
+
+    async def get_comment(self, *, comment_id: int) -> CommentDTO:
+        ...
+
+    async def delete_comment(self, *, author_id: int, comment_id: int) -> None:
+        ...
+
+    async def update_comment(self, *, author_id: int, comment_id: int, update_data: dict) -> CommentDTO:
         ...

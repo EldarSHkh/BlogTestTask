@@ -23,9 +23,11 @@ class CommentDTO(BaseModel):
     id: int
     post_id: int
     author_id: int
-    parent_id: int
+    parent_id: int = None
     text: constr(strip_whitespace=True, min_length=5, max_length=500)
-    replies: list[CommentDTO] = None
+    replies: list[CommentDTO] | CommentDTO = None
+    created_at: datetime
+    updated_at: datetime | None = None
 
     class Config:
         orm_mode = True
