@@ -19,7 +19,8 @@ class UserService:
         await self.user_repository.add_user(login=login, password=password)
 
     async def delete_user(self, *, user_id: int) -> None:
-        await self.user_repository.delete_user(user_id)
+        if not await self.user_repository.delete_user(user_id):
+            raise UserNotFound
 
     async def get_user_info(self, *, user_id: int) -> UserDTO | None:
         if user := await self.user_repository.get_user_by_id(user_id=user_id):

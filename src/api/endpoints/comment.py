@@ -5,6 +5,7 @@ from pydantic import constr
 from src.api.dependencies.service import CommentServiceStub, JWTSecurityGuardServiceStub
 from src.api.dto import CommentDTO
 from src.services.comment_service import CommentNotFound
+from src.database.repositories.comment_repository import DbError
 
 api_router = APIRouter(dependencies=[Depends(JWTSecurityGuardServiceStub), Depends(HTTPBearer())])
 
@@ -25,12 +26,15 @@ async def create_comment(
         parent_id: None | int = Body(0),
         comment_service: CommentServiceStub = Depends()
 ):
-    return await comment_service.create_comment(
-        author_id=request.state.user.user_id,
-        text=text,
-        post_id=post_id,
-        parent_id=parent_id if parent_id != 0 else None
-    )
+    try:
+        return await comment_service.create_comment(
+            author_id=request.state.user.user_id,
+            text=text,
+            post_id=post_id,
+            parent_id=parent_id if parent_id != 0 else None
+        )
+    except DbError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="error when creating a comment")
 
 
 @api_router.delete("/{comment_id}")
@@ -60,5 +64,5 @@ async def update_comment(
             update_data={"text": text}
         )
     except CommentNotFound:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="post not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="comment not found")
 

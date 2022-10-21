@@ -2,7 +2,7 @@ import typing
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import sessionmaker, selectinload, joinedload, subqueryload
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy import select
 from sqlalchemy.sql import Executable
 
@@ -18,7 +18,10 @@ class CommentRepository(BaseRepository):
         super().__init__(session_or_pool)
 
     async def add_comment(self, *, author_id: int, post_id: int, text: str, parent_id: int = None) -> Model:
-        return await self._insert(author_id=author_id, post_id=post_id, text=text, parent_id=parent_id)
+        try:
+            return await self._insert(author_id=author_id, post_id=post_id, text=text, parent_id=parent_id)
+        except IntegrityError as exc:
+            raise DbError(exc=exc)
 
     async def delete_comment(self, *, author_id: int,  comment_id: int) -> list[Model]:
         try:
@@ -34,9 +37,6 @@ class CommentRepository(BaseRepository):
             )
         except IntegrityError as exc:
             raise DbError(exc=exc)
-
-   # async def get_comment(self, comment_id: int) -> Model:
-    #    return await self._select_one(self.model.id == comment_id)
 
     async def get_comment(self, comment_id: int) -> Model:
         stmt = select(self.model).where(self.model.id == comment_id).distinct(self.model.id)

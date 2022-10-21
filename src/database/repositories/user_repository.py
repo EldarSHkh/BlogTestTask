@@ -25,9 +25,9 @@ class UserRepository(BaseRepository):
         except IntegrityError as exc:
             raise DbError(exc=exc)
 
-    async def delete_user(self, user_id: int) -> None:
+    async def delete_user(self, user_id: int) -> list[Model]:
         try:
-            await self._delete(self.model.id == user_id)
+            return await self._delete(self.model.id == user_id)
         except IntegrityError as exc:
             raise DbError(exc=exc)
 
